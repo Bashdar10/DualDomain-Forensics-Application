@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Operational Guidelines & User Recommendations{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h2 class="fw-bold text-gradient mb-3">Operational Guidelines & Best Practices</h2>
+        <p class="text-secondary mb-4">To ensure reliable and scientifically accurate forensic decisions, adhere to the following input conditions.</p>
+
+        <!-- Guideline Cards -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card glass-card p-4 border-0 h-100">
+                    <h5 class="fw-bold text-primary"><i class="fa-solid fa-layer-group me-2"></i>1. Supported Target Categories</h5>
+                    <p class="text-secondary small">
+                        The model was trained on the balanced <strong>MD-SynReal12K</strong> dataset covering:
+                    </p>
+                    <ul class="text-light small">
+                        <li><strong>Human Faces:</strong> Close-up and portrait facial structures.</li>
+                        <li><strong>Nature & Biological Fauna:</strong> Terrestrial/marine wildlife and organic plants.</li>
+                        <li><strong>Artificial Objects:</strong> Vehicles, indoor furniture, electronic appliances, and tools.</li>
+                    </ul>
+                    <span class="badge bg-secondary">Unrelated documents, charts, and low-contrast textures trigger OOD rejection.</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card glass-card p-4 border-0 h-100">
+                    <h5 class="fw-bold text-primary"><i class="fa-solid fa-compress me-2"></i>2. Image Resolution & Compression</h5>
+                    <p class="text-secondary small">
+                        Frequency artifacts can be attenuated by excessive lossy compression.
+                    </p>
+                    <ul class="text-light small">
+                        <li>Upload original, uncompressed captures when possible.</li>
+                        <li>Minimum recommended resolution: <strong>224 &times; 224 pixels</strong>.</li>
+                        <li>Heavy social-media recompression (e.g., WhatsApp downscaling) may lower spectral confidence below the 80% boundary.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card glass-card p-4 border-0 h-100">
+                    <h5 class="fw-bold text-primary"><i class="fa-solid fa-shield-halved me-2"></i>3. Interpreting Confidence & OOD Alert</h5>
+                    <p class="text-secondary small">
+                        The web app enforces a strict <strong>80% threshold</strong>:
+                    </p>
+                    <ul class="text-light small">
+                        <li><strong>&ge; 80%:</strong> High confidence verdict (Authentic vs. AI-Generated).</li>
+                        <li><strong>&lt; 80%:</strong> Marked as <em>Out of Distribution (OOD)</em>. The image falls outside the training manifold or exhibits contradictory spatial/spectral clues.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card glass-card p-4 border-0 h-100">
+                    <h5 class="fw-bold text-primary"><i class="fa-solid fa-microchip me-2"></i>4. Real-Time Deployment Constraints</h5>
+                    <p class="text-secondary small">
+                        Engineered for edge forensic workstations:
+                    </p>
+                    <ul class="text-light small">
+                        <li>Average latency is <strong>10–15 ms</strong> on GPU and ~45 ms on modern multi-core CPU.</li>
+                        <li>Memory footprint: ~25 MB weight storage with minimal VRAM consumption.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

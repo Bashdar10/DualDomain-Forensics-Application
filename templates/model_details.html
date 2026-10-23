@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Model Architecture & Benchmark Details{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <h2 class="fw-bold text-gradient mb-3">Model Architecture & Empirical Benchmarks</h2>
+        <p class="text-secondary mb-4">Comprehensive performance breakdown of the Spatial–Frequency Dual-Domain Fusion framework tested on the MD-SynReal12K dataset.</p>
+
+        <!-- Architecture Flow Card -->
+        <div class="card glass-card p-4 border-0 mb-4 shadow">
+            <h4 class="fw-bold text-primary"><i class="fa-solid fa-diagram-project me-2"></i>Dual-Domain Attention Fusion Overview</h4>
+            <p class="text-light">
+                The framework processes the input image through two orthogonal pathways:
+            </p>
+            <ul>
+                <li><strong>Spatial Stream (EfficientNet-B0):</strong> Extracts localized texture patterns, biological facial geometry, and structural contour features (1,280-dimensional embedding).</li>
+                <li><strong>Frequency Stream (Swin-Tiny Transformer):</strong> Computes 2D Discrete Fast Fourier Transform (2D FFT) magnitude representations to detect periodic upsampling lattices, grid artifacts, and spectral phase decay (768-dimensional embedding).</li>
+                <li><strong>Dynamic Attention Gate:</strong> Unified 2,048-dim vectors are dynamically weighted through a multi-layer perceptron ($\text{Linear} \to \text{ReLU} \to \text{Linear} \to \text{Sigmoid}$) to prioritize the most discriminative domain before classification.</li>
+            </ul>
+        </div>
+
+        <!-- Master Benchmark Table -->
+        <div class="card glass-card p-4 border-0 shadow">
+            <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-table-list me-2"></i>MD-SynReal12K Master Performance Table</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover table-bordered align-middle text-center small">
+                    <thead class="table-primary text-dark">
+                        <tr>
+                            <th>Domain Representation</th>
+                            <th>Architecture Backbone</th>
+                            <th>Accuracy (%)</th>
+                            <th>Precision (%)</th>
+                            <th>Recall (%)</th>
+                            <th>F1-Score (%)</th>
+                            <th>Latency (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="4" class="align-middle fw-semibold text-secondary">Grayscale FFT</td>
+                            <td>ResNet-50</td>
+                            <td>79.96%</td><td>82.30%</td><td>76.33%</td><td>79.20%</td><td>10.01 ms</td>
+                        </tr>
+                        <tr>
+                            <td>EfficientNet + CBAM</td>
+                            <td>84.67%</td><td>83.07%</td><td>87.08%</td><td>85.03%</td><td>8.34 ms</td>
+                        </tr>
+                        <tr>
+                            <td>Vision-Transformer (ViT)</td>
+                            <td>81.33%</td><td>78.61%</td><td>86.08%</td><td>82.18%</td><td>8.88 ms</td>
+                        </tr>
+                        <tr>
+                            <td>Swin-Transformer</td>
+                            <td>83.63%</td><td>80.68%</td><td>88.42%</td><td>84.37%</td><td>10.94 ms</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td rowspan="4" class="align-middle fw-semibold text-secondary">RGB-FFT</td>
+                            <td>ResNet-50</td>
+                            <td>87.79%</td><td>86.02%</td><td>90.25%</td><td>88.08%</td><td>14.37 ms</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td>EfficientNet + CBAM</td>
+                            <td>90.25%</td><td>91.35%</td><td>88.92%</td><td>90.12%</td><td>13.93 ms</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td>Vision-Transformer (ViT)</td>
+                            <td>89.25%</td><td>85.84%</td><td>94.00%</td><td>89.74%</td><td>13.78 ms</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td>Swin-Transformer</td>
+                            <td>90.67%</td><td>87.95%</td><td>94.25%</td><td>90.99%</td><td>14.83 ms</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" class="align-middle fw-semibold text-secondary">Spatial Domain</td>
+                            <td>ResNet-50</td>
+                            <td>99.29%</td><td>99.66%</td><td>98.92%</td><td>99.29%</td><td>8.27 ms</td>
+                        </tr>
+                        <tr>
+                            <td>EfficientNet + CBAM</td>
+                            <td>99.42%</td><td>99.58%</td><td>99.25%</td><td>99.42%</td><td>6.94 ms</td>
+                        </tr>
+                        <tr>
+                            <td>Vision-Transformer (ViT)</td>
+                            <td>98.92%</td><td>99.08%</td><td>98.75%</td><td>98.91%</td><td>7.14 ms</td>
+                        </tr>
+                        <tr>
+                            <td>Swin-Transformer</td>
+                            <td>99.38%</td><td>99.66%</td><td>99.08%</td><td>99.37%</td><td>10.02 ms</td>
+                        </tr>
+                        <tr class="table-success text-dark fw-bold">
+                            <td>Proposed Dual-Domain</td>
+                            <td>Spatial–Frequency Fusion</td>
+                            <td>99.58%</td><td>99.50%</td><td>99.66%</td><td>99.58%</td><td>&lt; 14.62 ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

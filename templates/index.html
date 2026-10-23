@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Live Image Forensics — Spatial-Frequency Detection{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 text-center mb-4">
+        <h1 class="fw-extrabold display-6 text-gradient mb-2">Dual-Domain AI Image Authentication</h1>
+        <p class="text-secondary fs-6">Detect authentic photographic captures vs. generative AI models (Midjourney, Stable Diffusion, DALL-E) using spatial semantics & 2D FFT spectral anomalies.</p>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="col-lg-9">
+        <div class="card glass-card shadow-lg p-4 mb-4 border-0">
+            <div class="drop-zone p-5 text-center" id="dropZone">
+                <i class="fa-solid fa-cloud-arrow-up display-3 text-primary mb-3"></i>
+                <h4 class="fw-bold">Drag and drop your image here</h4>
+                <p class="text-muted">or browse your system (Supported: JPG, PNG, WEBP, BMP — Max 16MB)</p>
+                <input type="file" id="fileInput" accept="image/*" class="d-none">
+                <button class="btn btn-outline-primary px-4 py-2 mt-2" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-folder-open me-2"></i>Choose File
+                </button>
+            </div>
+            
+            <div class="text-center mt-3 d-none" id="loader">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-info">Extracting Spatial Semantics & 2D FFT Spectrum...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="col-lg-10 d-none" id="resultContainer">
+        <!-- OOD Alert Box -->
+        <div class="alert d-none shadow-sm" id="alertBox" role="alert"></div>
+
+        <div class="card glass-card p-4 border-0 shadow-lg">
+            <div class="row align-items-center">
+                <!-- Visual Breakdown Column -->
+                <div class="col-md-5 text-center border-end border-secondary pe-md-4">
+                    <h5 class="fw-bold text-secondary mb-3">Visual & Spectral Domains</h5>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <span class="badge bg-dark border mb-1">Spatial (RGB)</span>
+                            <img id="imgSpatial" class="img-fluid rounded border border-secondary shadow-sm" alt="Spatial Image">
+                        </div>
+                        <div class="col-6">
+                            <span class="badge bg-dark border mb-1">2D FFT Magnitude</span>
+                            <img id="imgFFT" class="img-fluid rounded border border-secondary shadow-sm" alt="2D FFT Spectrum">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forensic Metrics Column -->
+                <div class="col-md-7 ps-md-4 mt-3 mt-md-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted text-uppercase fw-semibold">Inference Latency: <strong id="latencyVal" class="text-light">0 ms</strong></span>
+                        <span class="badge rounded-pill px-3 py-2 fs-6" id="statusBadge">ANALYZING</span>
+                    </div>
+
+                    <h3 class="fw-bold mb-3" id="predictionTitle">Authentic vs Synthetic</h3>
+                    <p class="text-secondary small mb-3" id="diagnosticMsg"></p>
+
+                    <!-- Confidence Bar -->
+                    <label class="small text-muted fw-bold">Overall Forensic Confidence:</label>
+                    <div class="progress mb-3 bg-secondary" style="height: 18px;">
+                        <div id="confidenceBar" class="progress-bar progress-bar-striped progress-bar-animated fw-bold" style="width: 0%;">0%</div>
+                    </div>
+
+                    <!-- Individual Class Breakdown -->
+                    <div class="row small g-2 mt-2">
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <span class="text-muted d-block">Authentic Probability:</span>
+                                <strong id="probReal" class="text-success fs-6">0%</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <span class="text-muted d-block">Synthetic Probability:</span>
+                                <strong id="probFake" class="text-danger fs-6">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const loader = document.getElementById('loader');
+const resultContainer = document.getElementById('resultContainer');
+const alertBox = document.getElementById('alertBox');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+    dropZone.addEventListener(evt, e => e.preventDefault());
+});
+
+dropZone.addEventListener('dragover', () => dropZone.classList.add('border-primary'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary'));
+dropZone.addEventListener('drop', (e) => {
+    dropZone.classList.remove('border-primary');
+    if (e.dataTransfer.files.length) uploadImage(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) uploadImage(fileInput.files[0]);
+});
+
+function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    loader.classList.remove('d-none');
+    resultContainer.classList.add('d-none');
+
+    fetch('/predict', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        loader.classList.add('d-none');
+        if(!data.success) {
+            alert('Analysis Error: ' + data.error);
+            return;
+        }
+
+        resultContainer.classList.remove('d-none');
+        document.getElementById('imgSpatial').src = data.orig_img;
+        document.getElementById('imgFFT').src = data.fft_img;
+        document.getElementById('latencyVal').innerText = data.latency_ms + ' ms';
+        document.getElementById('predictionTitle').innerText = data.prediction;
+        document.getElementById('diagnosticMsg').innerText = data.message;
+        
+        document.getElementById('probReal').innerText = data.prob_authentic + '%';
+        document.getElementById('probFake').innerText = data.prob_synthetic + '%';
+
+        const confBar = document.getElementById('confidenceBar');
+        confBar.style.width = data.confidence + '%';
+        confBar.innerText = data.confidence + '%';
+
+        const badge = document.getElementById('statusBadge');
+        alertBox.classList.add('d-none');
+
+        if(data.is_supported) {
+            if(data.status === 'AUTHENTIC') {
+                badge.className = 'badge rounded-pill px-3 py-2 fs-6 bg-success text-white';
+                badge.innerText = 'AUTHENTIC PHOTO';
+                confBar.className = 'progress-bar bg-success fw-bold';
+            } else {
+                badge.className = 'badge rounded-pill px-3 py-2 fs-6 bg-danger text-white';
+                badge.innerText = 'AI-GENERATED SYNTHETIC';
+                confBar.className = 'progress-bar bg-danger fw-bold';
+            }
+        } else {
+            // Out of distribution triggered (< 80% confidence)
+            badge.className = 'badge rounded-pill px-3 py-2 fs-6 bg-warning text-dark';
+            badge.innerText = 'OUT OF DISTRIBUTION (OOD)';
+            confBar.className = 'progress-bar bg-warning text-dark fw-bold';
+
+            alertBox.className = 'alert alert-warning border border-warning shadow-sm';
+            alertBox.innerHTML = `<strong><i class="fa-solid fa-triangle-exclamation me-2"></i>Out of Target Domain Warning:</strong> The system confidence (${data.confidence}%) is below 80%. This image is likely outside the supported domains (Faces, Fauna, Objects) or subjected to severe compression/distortion.`;
+            alertBox.classList.remove('d-none');
+        }
+    })
+    .catch(err => {
+        loader.classList.add('d-none');
+        alert('Server Connection Error: ' + err);
+    });
+}
+</script>
+{% endblock %}
