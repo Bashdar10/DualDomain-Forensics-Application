@@ -131,7 +131,7 @@ function uploadImage(file) {
         resultContainer.classList.remove('d-none');
         document.getElementById('imgSpatial').src = data.orig_img;
         document.getElementById('imgFFT').src = data.fft_img;
-        document.getElementById('latencyVal').innerText = data.latency_ms + ' ms';
+        //document.getElementById('latencyVal').innerText = data.latency_ms + ' ms';
         document.getElementById('predictionTitle').innerText = data.prediction;
         document.getElementById('diagnosticMsg').innerText = data.message;
         
